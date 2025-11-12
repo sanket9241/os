@@ -1,0 +1,2256 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+P1-Address Book Shell Script
+emp.sh-file name
+
+#!/bin/bash
+
+echo -e "====== Address Book System ======\n"
+
+# Get filename from user
+echo -n "Enter file name: "
+read fname
+
+# Check if file exists, if not create with header
+if [ ! -f "$fname" ]; then
+    echo -e "ID\tName\t\tMobile\t\tSalary\t\tLocation" > "$fname"
+    echo "File created successfully!"
+else
+    echo "Using existing file: $fname"
+fi
+
+# Main menu loop
+while true
+do
+    echo -e "\n====== MENU ======"
+    echo "1) Create/Add Initial Records"
+    echo "2) View Address Book"
+    echo "3) Insert a Record"
+    echo "4) Delete a Record"
+    echo "5) Modify a Record"
+    echo "6) Search a Record"
+    echo "7) Exit"
+    echo -e "=================="
+    
+    echo -n "Enter Your Choice: "
+    read ch
+    
+    case $ch in
+    
+        1)
+            echo -n "Enter number of records to add: "
+            read n
+            
+            # Input validation
+            if ! [[ "$n" =~ ^[0-9]+$ ]] || [ "$n" -le 0 ]; then
+                echo "Invalid input! Please enter a positive number."
+                continue
+            fi
+            
+            for ((i=0; i<$n; i++))
+            do
+                echo -e "\n--- Record $((i+1)) ---"
+                
+                echo -n "Enter ID: "
+                read id
+                [ -z "$id" ] && echo "ID cannot be empty!" && continue
+                
+                echo -n "Enter Name: "
+                read name
+                [ -z "$name" ] && echo "Name cannot be empty!" && continue
+                
+                echo -n "Enter Mobile Number: "
+                read mno
+                [ -z "$mno" ] && echo "Mobile number cannot be empty!" && continue
+                
+                echo -n "Enter Salary: "
+                read sal
+                [ -z "$sal" ] && echo "Salary cannot be empty!" && continue
+                
+                echo -n "Enter Location: "
+                read loc
+                [ -z "$loc" ] && echo "Location cannot be empty!" && continue
+                
+                echo -e "$id\t$name\t\t$mno\t\t$sal\t\t$loc" >> "$fname"
+                echo "Record added successfully!"
+            done
+            ;;
+        
+        2)
+            if [ -s "$fname" ]; then
+                echo -e "\n====== Address Book Contents ======"
+                cat "$fname"
+                echo "====================================="
+            else
+                echo "Address book is empty!"
+            fi
+            ;;
+        
+        3)
+            echo -n "Enter ID: "
+            read id
+            [ -z "$id" ] && echo "ID cannot be empty!" && continue
+            
+            echo -n "Enter Name: "
+            read name
+            [ -z "$name" ] && echo "Name cannot be empty!" && continue
+            
+            echo -n "Enter Mobile Number: "
+            read mno
+            [ -z "$mno" ] && echo "Mobile number cannot be empty!" && continue
+            
+            echo -n "Enter Salary: "
+            read sal
+            [ -z "$sal" ] && echo "Salary cannot be empty!" && continue
+            
+            echo -n "Enter Location: "
+            read loc
+            [ -z "$loc" ] && echo "Location cannot be empty!" && continue
+            
+            echo -e "$id\t$name\t\t$mno\t\t$sal\t\t$loc" >> "$fname"
+            echo "Record inserted successfully!"
+            ;;
+        
+        4)
+            echo -n "Enter Employee ID to delete: "
+            read id
+            [ -z "$id" ] && echo "ID cannot be empty!" && continue
+            
+            if grep -q "^$id\t" "$fname"; then
+                # Create backup before deletion
+                cp "$fname" "${fname}.backup"
+                grep -v "^$id\t" "$fname" > "${fname}.tmp"
+                mv "${fname}.tmp" "$fname"
+                echo "Record deleted successfully!"
+            else
+                echo "Record with ID $id not found!"
+            fi
+            ;;
+        
+        5)
+            echo -n "Enter Employee ID to modify: "
+            read id
+            [ -z "$id" ] && echo "ID cannot be empty!" && continue
+            
+            if grep -q "^$id\t" "$fname"; then
+                # Create backup before modification
+                cp "$fname" "${fname}.backup"
+                grep -v "^$id\t" "$fname" > "${fname}.tmp"
+                
+                echo -e "\n--- Enter new details ---"
+                
+                echo -n "Enter new ID: "
+                read new_id
+                [ -z "$new_id" ] && echo "ID cannot be empty!" && mv "${fname}.tmp" "$fname" && continue
+                
+                echo -n "Enter new Name: "
+                read name
+                [ -z "$name" ] && echo "Name cannot be empty!" && mv "${fname}.tmp" "$fname" && continue
+                
+                echo -n "Enter new Mobile Number: "
+                read mno
+                [ -z "$mno" ] && echo "Mobile number cannot be empty!" && mv "${fname}.tmp" "$fname" && continue
+                
+                echo -n "Enter new Salary: "
+                read sal
+                [ -z "$sal" ] && echo "Salary cannot be empty!" && mv "${fname}.tmp" "$fname" && continue
+                
+                echo -n "Enter new Location: "
+                read loc
+                [ -z "$loc" ] && echo "Location cannot be empty!" && mv "${fname}.tmp" "$fname" && continue
+                
+                echo -e "$new_id\t$name\t\t$mno\t\t$sal\t\t$loc" >> "${fname}.tmp"
+                mv "${fname}.tmp" "$fname"
+                echo "Record modified successfully!"
+            else
+                echo "Record with ID $id not found!"
+            fi
+            ;;
+        
+        6)
+            echo -n "Enter Employee ID to search: "
+            read id
+            [ -z "$id" ] && echo "ID cannot be empty!" && continue
+            
+            if grep -q "^$id\t" "$fname"; then
+                echo -e "\n====== Search Result ======"
+                grep "^$id\t" "$fname"
+                echo "=========================="
+            else
+                echo "Record with ID $id not found!"
+            fi
+            ;;
+        
+        7)
+            echo "Thank you for using Address Book!"
+            exit 0
+            ;;
+        
+        *)
+            echo "Invalid choice! Please enter a number between 1 and 7."
+            ;;
+    esac
+
+done
+
+chmod +x emp.sh
+./emp.sh
+Enter file name: employees.txt
+
+
+P2-Process control system calls
+pro.c
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+
+void quicksort(int a[], int first, int last);
+void divide(int a[], int low, int high);
+void merge(int a[], int low, int mid, int high);
+
+int main() {
+    int a[20], n, i;
+    pid_t pid;
+    int status;
+
+    printf("========== Process Control System Calls ==========\n\n");
+
+    printf("Enter size of array (max 20): ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > 20) {
+        printf("Invalid array size!\n");
+        return 1;
+    }
+
+    printf("Enter %d elements (space-separated): ", n);
+    for (i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+
+    printf("\n========== Array Created ==========\n");
+    printf("Original Array: ");
+    for (i = 0; i < n; i++)
+        printf("%d ", a[i]);
+    printf("\n\n");
+
+    // Create child process
+    pid = fork();
+
+    if (pid < 0) {
+        // Fork failed
+        printf("ERROR: Fork failed!\n");
+        return 1;
+    } 
+    else if (pid == 0) {
+        // Child process - Performs Quick Sort
+        printf("========== CHILD PROCESS ==========\n");
+        printf("Child Process ID: %d\n", getpid());
+        printf("Parent Process ID: %d\n", getppid());
+        printf("Child: Starting Quick Sort...\n\n");
+
+        quicksort(a, 0, n - 1);
+
+        printf("Child: Quick Sort completed!\n");
+        printf("Child: Sorted Array: ");
+        for (i = 0; i < n; i++)
+            printf("%d ", a[i]);
+        printf("\n");
+
+        printf("Child: Exiting...\n\n");
+        exit(0);
+    } 
+    else {
+        // Parent process - Performs Merge Sort
+        printf("========== PARENT PROCESS ==========\n");
+        printf("Parent Process ID: %d\n", getpid());
+        printf("Child Process ID (created): %d\n", pid);
+        printf("Parent: Starting Merge Sort...\n\n");
+
+        divide(a, 0, n - 1);
+
+        printf("Parent: Merge Sort completed!\n");
+        printf("Parent: Sorted Array: ");
+        for (i = 0; i < n; i++)
+            printf("%d ", a[i]);
+        printf("\n");
+
+        // Wait for child process to complete
+        printf("\nParent: Waiting for child process...\n");
+        waitpid(pid, &status, 0);
+
+        if (WIFEXITED(status)) {
+            printf("Parent: Child process exited with status: %d\n", WEXITSTATUS(status));
+        }
+
+        printf("Parent: Exiting...\n\n");
+    }
+
+    return 0;
+}
+
+// Merge Sort - Divide function
+void divide(int a[], int low, int high) {
+    if (low < high) {
+        int mid = (low + high) / 2;
+        divide(a, low, mid);
+        divide(a, mid + 1, high);
+        merge(a, low, mid, high);
+    }
+}
+
+// Merge Sort - Merge function
+void merge(int a[], int low, int mid, int high) {
+    int m = mid - low + 1;
+    int n = high - mid;
+
+    // Create temporary arrays
+    int *first_half = (int *)malloc(m * sizeof(int));
+    int *second_half = (int *)malloc(n * sizeof(int));
+
+    if (first_half == NULL || second_half == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+
+    // Copy data to temporary arrays
+    for (int i = 0; i < m; i++)
+        first_half[i] = a[low + i];
+    for (int i = 0; i < n; i++)
+        second_half[i] = a[mid + i + 1];
+
+    int i = 0, j = 0, k = low;
+
+    // Merge the temporary arrays back
+    while (i < m && j < n) {
+        if (first_half[i] <= second_half[j]) {
+            a[k++] = first_half[i++];
+        } else {
+            a[k++] = second_half[j++];
+        }
+    }
+
+    // Copy remaining elements from first_half
+    while (i < m) {
+        a[k++] = first_half[i++];
+    }
+
+    // Copy remaining elements from second_half
+    while (j < n) {
+        a[k++] = second_half[j++];
+    }
+
+    // Free allocated memory
+    free(first_half);
+    free(second_half);
+}
+
+// Quick Sort function
+void quicksort(int a[], int first, int last) {
+    if (first < last) {
+        int pivot = first;
+        int i = first;
+        int j = last;
+        int temp;
+
+        while (i < j) {
+            while (a[i] <= a[pivot] && i < last)
+                i++;
+            while (a[j] > a[pivot])
+                j--;
+            if (i < j) {
+                temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
+            }
+        }
+
+        temp = a[pivot];
+        a[pivot] = a[j];
+        a[j] = temp;
+
+        quicksort(a, first, j - 1);
+        quicksort(a, j + 1, last);
+    }
+}
+
+
+gcc -o process_control pro.c
+./process_control
+========== Process Control System Calls ==========
+
+Enter size of array (max 20): 5
+Enter 5 elements (space-separated): 64 34 25 12 22
+
+========== Array Created ==========
+Original Array: 64 34 25 12 22 
+
+========== CHILD PROCESS ==========
+Child Process ID: 12345
+Parent Process ID: 12344
+Child: Starting Quick Sort...
+
+Child: Quick Sort completed!
+Child: Sorted Array: 12 22 25 34 64 
+Child: Exiting...
+
+========== PARENT PROCESS ==========
+Parent Process ID: 12344
+Child Process ID (created): 12345
+Parent: Starting Merge Sort...
+
+Parent: Merge Sort completed!
+Parent: Sorted Array: 12 22 25 34 64 
+
+Parent: Waiting for child process...
+Parent: Child process exited with status: 0
+Parent: Exiting...
+
+
+P3-
+Round Robin
+rr.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define N 100
+
+struct process {
+    int process_id;
+    int arrival_time;
+    int burst_time;      // Fixed typo from brust_time
+    int completion_time;
+    int waiting_time;
+    int turn_around_time;
+    int remaining_time;
+    int started;         // Flag to mark if process has started
+};
+
+struct process proc[N];
+int queue[N];
+int front = 0, rear = 0;
+
+// Enqueue operation
+void push(int process_id) {
+    queue[rear] = process_id;
+    rear = (rear + 1) % N;
+}
+
+// Dequeue operation
+int pop() {
+    if (front == rear)
+        return -1;
+    int ret = queue[front];
+    front = (front + 1) % N;
+    return ret;
+}
+
+// Check if process is in queue
+int is_in_queue(int process_id) {
+    for (int i = front; i != rear; i = (i + 1) % N) {
+        if (queue[i] == process_id)
+            return 1;
+    }
+    return 0;
+}
+
+// Check if queue is empty
+int is_queue_empty() {
+    return front == rear;
+}
+
+int main() {
+    int n, time_quantum;
+    float total_waiting_time = 0, total_turnaround_time = 0;
+
+    printf("========== ROUND ROBIN SCHEDULING ==========\n\n");
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > N) {
+        printf("Invalid number of processes!\n");
+        return 1;
+    }
+
+    // Initialize process array
+    memset(proc, 0, sizeof(proc));
+
+    printf("\n--- Enter Process Details ---\n");
+    for (int i = 0; i < n; i++) {
+        proc[i].process_id = i + 1;
+        
+        printf("\nProcess P%d:\n", i + 1);
+        printf("  Enter arrival time: ");
+        scanf("%d", &proc[i].arrival_time);
+        
+        printf("  Enter burst time: ");
+        scanf("%d", &proc[i].burst_time);
+
+        if (proc[i].arrival_time < 0 || proc[i].burst_time <= 0) {
+            printf("  Invalid input! Arrival time >= 0, Burst time > 0.\n");
+            return 1;
+        }
+
+        proc[i].remaining_time = proc[i].burst_time;
+        proc[i].started = 0;
+    }
+
+    printf("\nEnter time quantum: ");
+    scanf("%d", &time_quantum);
+
+    if (time_quantum <= 0) {
+        printf("Time quantum must be positive!\n");
+        return 1;
+    }
+
+    int time = 0;
+    int completed = 0;
+    int current = -1;
+    int time_slice = 0;
+
+    printf("\n========== EXECUTION ==========\n");
+    printf("Time Quantum: %d\n\n", time_quantum);
+    printf("Gantt Chart: ");
+
+    // Enqueue all processes that arrive at time 0
+    for (int i = 0; i < n; i++) {
+        if (proc[i].arrival_time <= time) {
+            push(i);
+            proc[i].started = 1;
+        }
+    }
+
+    int gantt_time = 0;
+
+    while (completed < n) {
+        if (current == -1 && !is_queue_empty()) {
+            current = pop();
+            time_slice = 0;
+            printf("| P%d ", proc[current].process_id);
+            gantt_time = time;
+        }
+
+        if (current != -1) {
+            // Execute process for 1 unit
+            proc[current].remaining_time--;
+            time_slice++;
+            time++;
+
+            // Enqueue new arrivals at current time
+            for (int i = 0; i < n; i++) {
+                if (proc[i].arrival_time == time && !proc[i].started) {
+                    push(i);
+                    proc[i].started = 1;
+                }
+            }
+
+            // Check if process is completed
+            if (proc[current].remaining_time == 0) {
+                proc[current].completion_time = time;
+                proc[current].turn_around_time = proc[current].completion_time - proc[current].arrival_time;
+                proc[current].waiting_time = proc[current].turn_around_time - proc[current].burst_time;
+                total_turnaround_time += proc[current].turn_around_time;
+                total_waiting_time += proc[current].waiting_time;
+                completed++;
+                current = -1;
+                time_slice = 0;
+            }
+            // Check if time quantum is exhausted
+            else if (time_slice == time_quantum) {
+                push(current);
+                current = -1;
+            }
+        }
+        // CPU idle - no process in queue, advance time to next arrival
+        else if (is_queue_empty() && completed < n) {
+            int next_arrival = INT_MAX;
+            for (int i = 0; i < n; i++) {
+                if (!proc[i].started && proc[i].arrival_time > time) {
+                    if (proc[i].arrival_time < next_arrival) {
+                        next_arrival = proc[i].arrival_time;
+                    }
+                }
+            }
+            if (next_arrival != INT_MAX) {
+                time = next_arrival;
+                for (int i = 0; i < n; i++) {
+                    if (proc[i].arrival_time == time && !proc[i].started) {
+                        push(i);
+                        proc[i].started = 1;
+                    }
+                }
+            }
+        }
+    }
+
+    printf(" |\n");
+    printf("Time: 0      %d\n\n", time);
+
+    printf("========== RESULTS ==========\n");
+    printf("Process\tAT\tBT\tCT\tTAT\tWT\n");
+    printf("-------------------------------------------\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+               proc[i].process_id,
+               proc[i].arrival_time,
+               proc[i].burst_time,
+               proc[i].completion_time,
+               proc[i].turn_around_time,
+               proc[i].waiting_time);
+    }
+
+    printf("\n========== STATISTICS ==========\n");
+    printf("Average Waiting Time: %.2f ms\n", total_waiting_time / n);
+    printf("Average Turnaround Time: %.2f ms\n", total_turnaround_time / n);
+
+    printf("\n========== LEGEND ==========\n");
+    printf("AT  = Arrival Time\n");
+    printf("BT  = Burst Time\n");
+    printf("CT  = Completion Time\n");
+    printf("TAT = Turnaround Time (CT - AT)\n");
+    printf("WT  = Waiting Time (TAT - BT)\n");
+
+    return 0;
+}
+
+Enter the number of processes: 3
+
+--- Enter Process Details ---
+
+Process P1:
+  Enter arrival time: 0
+  Enter burst time: 8
+
+Process P2:
+  Enter arrival time: 1
+  Enter burst time: 4
+
+Process P3:
+  Enter arrival time: 2
+  Enter burst time: 2
+
+Enter time quantum: 4
+
+SJF
+sjf.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Process {
+    int id;
+    int arrival_time;
+    int burst_time;
+    int waiting_time;
+    int turn_around_time;
+    int completion_time;
+};
+
+void calculateTimes(struct Process proc[], int n) {
+    int total_waiting_time = 0, total_turn_around_time = 0;
+
+    printf("\n========== FCFS CPU SCHEDULING ==========\n\n");
+
+    // Sort processes by arrival time (then by burst time if arrival time is same)
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {  // Fixed: was j=+1
+            if (proc[i].arrival_time > proc[j].arrival_time ||
+                (proc[i].arrival_time == proc[j].arrival_time && 
+                 proc[i].burst_time > proc[j].burst_time)) {
+                struct Process temp = proc[i];
+                proc[i] = proc[j];
+                proc[j] = temp;
+            }
+        }
+    }
+
+    // Calculate completion time, turnaround time, and waiting time
+    printf("Gantt Chart: ");
+    
+    // For first process
+    proc[0].completion_time = proc[0].arrival_time + proc[0].burst_time;
+    proc[0].turn_around_time = proc[0].completion_time - proc[0].arrival_time;
+    proc[0].waiting_time = proc[0].turn_around_time - proc[0].burst_time;
+
+    printf("| P%d ", proc[0].id);
+
+    // For remaining processes
+    for (int i = 1; i < n; i++) {
+        // If process arrives after previous process completion, CPU is idle
+        if (proc[i].arrival_time > proc[i - 1].completion_time) {
+            proc[i].completion_time = proc[i].arrival_time + proc[i].burst_time;
+        } else {
+            proc[i].completion_time = proc[i - 1].completion_time + proc[i].burst_time;
+        }
+
+        proc[i].turn_around_time = proc[i].completion_time - proc[i].arrival_time;
+        proc[i].waiting_time = proc[i].turn_around_time - proc[i].burst_time;
+
+        printf("| P%d ", proc[i].id);
+    }
+    printf("|\n");
+    printf("Time: 0      ");
+    for (int i = 0; i < n; i++) {
+        printf("%d      ", proc[i].completion_time);
+    }
+    printf("\n\n");
+
+    // Display table
+    printf("========== RESULTS ==========\n");
+    printf("Process\tAT\tBT\tCT\tTAT\tWT\n");
+    printf("-------------------------------------------\n");
+
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+               proc[i].id,
+               proc[i].arrival_time,
+               proc[i].burst_time,
+               proc[i].completion_time,
+               proc[i].turn_around_time,
+               proc[i].waiting_time);
+
+        total_waiting_time += proc[i].waiting_time;
+        total_turn_around_time += proc[i].turn_around_time;
+    }
+
+    printf("\n========== STATISTICS ==========\n");
+    printf("Average waiting time: %.2f ms\n", (float)total_waiting_time / n);
+    printf("Average turn around time: %.2f ms\n", (float)total_turn_around_time / n);
+
+    printf("\n========== LEGEND ==========\n");
+    printf("AT  = Arrival Time\n");
+    printf("BT  = Burst Time\n");
+    printf("CT  = Completion Time\n");
+    printf("TAT = Turnaround Time (CT - AT)\n");
+    printf("WT  = Waiting Time (TAT - BT)\n");
+}
+
+int main() {
+    int n;
+
+    printf("========== FCFS CPU SCHEDULING SIMULATOR ==========\n\n");
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    if (n <= 0) {
+        printf("Invalid number of processes!\n");
+        return 1;
+    }
+
+    struct Process proc[n];
+
+    printf("\n--- Enter Process Details ---\n");
+    for (int i = 0; i < n; i++) {
+        proc[i].id = i + 1;
+        
+        printf("\nProcess P%d:\n", proc[i].id);
+        printf("  Enter arrival time: ");
+        scanf("%d", &proc[i].arrival_time);
+        
+        printf("  Enter burst time: ");
+        scanf("%d", &proc[i].burst_time);
+
+        if (proc[i].arrival_time < 0 || proc[i].burst_time <= 0) {
+            printf("  Invalid input! Arrival time >= 0, Burst time > 0.\n");
+            return 1;
+        }
+    }
+
+    calculateTimes(proc, n);
+
+    return 0;
+}
+
+gcc -o fcfs_scheduling fcfs_scheduling.c
+./fcfs_scheduling
+Enter number of processes: 4
+
+--- Enter Process Details ---
+
+Process P1:
+  Enter arrival time: 0
+  Enter burst time: 8
+
+Process P2:
+  Enter arrival time: 1
+  Enter burst time: 4
+
+Process P3:
+  Enter arrival time: 2
+  Enter burst time: 2
+
+Process P4:
+  Enter arrival time: 3
+  Enter burst time: 1
+
+P4
+producer-consumer
+pc.c
+
+#include<stdio.h>
+#include<sys/syscall.h>
+#include<pthread.h>
+#include<semaphore.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<sys/types.h>
+
+void *producer();
+void *consumer();
+
+typedef struct {
+    int buffer[20];
+    sem_t full, empty;
+} shared;
+
+shared sh;
+int item;
+int in = 0, out = 0;
+sem_t mutex;
+
+int main() {
+    pthread_t ptid1, ptid2, ctid1;
+    
+    sem_init(&sh.empty, 0, 20);  // 20 empty slots initially
+    sem_init(&sh.full, 0, 0);     // 0 full slots initially
+    sem_init(&mutex, 0, 1);       // Binary semaphore for mutual exclusion
+    
+    pthread_create(&ptid1, NULL, producer, NULL);
+    pthread_create(&ptid2, NULL, producer, NULL);
+    pthread_create(&ctid1, NULL, consumer, NULL);
+    
+    pthread_join(ptid1, NULL);
+    pthread_join(ptid2, NULL);
+    pthread_join(ctid1, NULL);
+    
+    return 0;
+}
+
+void *producer() {
+    int item_produced;
+    while(1) {
+        item_produced = in;  // Produce item
+        
+        sem_wait(&sh.empty);  // Wait if buffer is full
+        sem_wait(&mutex);     // Enter critical section
+        
+        sh.buffer[in] = item_produced;
+        printf("PRODUCER Thread id = %ld | Produced Item = %d at position %d\n", 
+               pthread_self(), item_produced, in);
+        in = (in + 1) % 20;   // Circular buffer
+        
+        sem_post(&mutex);     // Exit critical section
+        sem_post(&sh.full);   // Signal that buffer has data
+        
+        sleep(3);
+    }
+    return NULL;
+}
+
+void *consumer() {
+    int item_consumed;
+    while(1) {
+        sem_wait(&sh.full);   // Wait if buffer is empty
+        sem_wait(&mutex);     // Enter critical section
+        
+        item_consumed = sh.buffer[out];
+        printf("\tCONSUMER Thread id = %ld | Consumed Item = %d from position %d\n", 
+               pthread_self(), item_consumed, out);
+        out = (out + 1) % 20;  // Circular buffer
+        
+        sem_post(&mutex);      // Exit critical section
+        sem_post(&sh.empty);   // Signal that buffer has space
+        
+        sleep(1);
+    }
+    return NULL;
+}
+
+gcc -o producer_consumer producer_consumer.c -lpthread
+./producer_consumer
+
+
+readers-writers
+rw.c
+
+#include<stdio.h>
+#include<unistd.h>
+#include<semaphore.h>
+#include<pthread.h>
+#include<sys/syscall.h>
+
+void *reader(void *argp);
+void *writer(void *argp);
+int buffer;
+int flag=0;
+int read_count=0;
+
+int getbuff() {
+    int temp;
+    printf("Enter the no to add in buffer : ");
+    scanf("%d", &temp);
+    return temp;
+}
+
+void readbuff(int buffer) {
+    printf("Element read by reader=%d\n", buffer);
+}
+
+pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t wrt = PTHREAD_MUTEX_INITIALIZER;
+
+int main() {
+    pthread_t wtid1, rtid1, rtid2;
+    pthread_create(&wtid1, NULL, writer, NULL);
+    pthread_create(&rtid1, NULL, reader, NULL);
+    pthread_create(&rtid2, NULL, reader, NULL);
+
+    pthread_join(wtid1, NULL);
+    pthread_join(rtid1, NULL);
+    pthread_join(rtid2, NULL);
+
+    return 0;
+}
+
+void* writer(void *argp) {
+    while (1) {
+        pthread_mutex_lock(&wrt);
+        if (flag == 0) {
+            buffer = getbuff();
+            flag = 1;  // Data is available
+        }
+        pthread_mutex_unlock(&wrt);
+        sleep(1);  // Prevent busy waiting
+    }
+    return NULL;
+}
+
+void* reader(void *argp) {
+    while (1) {
+        pthread_mutex_lock(&mutex1);
+        read_count++;
+        if (read_count == 1) {
+            pthread_mutex_lock(&wrt);
+        }
+        pthread_mutex_unlock(&mutex1);
+
+        // Critical section for reading
+        // Protect flag checking with mutex1 to avoid race
+        pthread_mutex_lock(&mutex1);
+        if (flag == 1) {
+            readbuff(buffer);
+            sleep(1);
+            flag = 0;
+        }
+        pthread_mutex_unlock(&mutex1);
+
+        pthread_mutex_lock(&mutex1);
+        read_count--;
+        if (read_count == 0) {
+            pthread_mutex_unlock(&wrt);
+        }
+        pthread_mutex_unlock(&mutex1);
+    }
+    return NULL;
+}
+
+gcc -o readers_writers readers_writers.c -lpthread
+./readers_writers
+
+P5-Banker's Algorithm
+b.c
+
+#include <stdio.h>
+
+int max[100][100];
+int alloc[100][100];
+int need[100][100];
+int avail[100];
+int n, r;
+
+void input();
+void show();
+void cal();
+
+int main() {
+    printf("**********Banker's Algorithm**********\n");
+    input();
+    show();
+    cal();
+    getchar();
+    return 0;
+}
+
+void input() {
+    int i, j;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    printf("Enter the number of resource instances: ");
+    scanf("%d", &r);
+
+    printf("Enter the Max Matrix:\n");
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < r; j++) {
+            scanf("%d", &max[i][j]);
+        }
+    }
+
+    printf("Enter the Allocation Matrix:\n");
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < r; j++) {
+            scanf("%d", &alloc[i][j]);
+        }
+    }
+
+    printf("Enter the available resources:\n");
+    for (j = 0; j < r; j++) {
+        scanf("%d", &avail[j]);
+    }
+}
+
+void show() {
+    int i, j;
+    printf("Process\tAllocation\tMax\t\tAvailable\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d\t", i + 1);
+        for (j = 0; j < r; j++) {
+            printf("%d ", alloc[i][j]);
+        }
+        printf("\t");
+        for (j = 0; j < r; j++) {
+            printf("%d ", max[i][j]);
+        }
+        printf("\t");
+        if (i == 0) {
+            for (j = 0; j < r; j++) {
+                printf("%d ", avail[j]);
+            }
+        }
+        printf("\n");
+    }
+}
+
+void cal() {
+    int finish[100], flag = 1, k, cl = 0;
+    int safe[100];
+    int i, j;
+
+    for (i = 0; i < n; i++) {
+        finish[i] = 0;
+    }
+
+    // Calculate need matrix
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < r; j++) {
+            need[i][j] = max[i][j] - alloc[i][j];
+        }
+    }
+
+    printf("\nSafe sequence is: ");
+
+    while (flag) {
+        flag = 0;
+        for (i = 0; i < n; i++) {
+            if (finish[i] == 0) {
+                int c = 0;
+                for (j = 0; j < r; j++) {
+                    if (need[i][j] <= avail[j]) {
+                        c++;
+                    }
+                }
+                if (c == r) {
+                    for (k = 0; k < r; k++) {
+                        avail[k] += alloc[i][k];
+                    }
+                    finish[i] = 1;
+                    flag = 1;
+                    safe[cl++] = i;
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < n; i++) {
+        if (finish[i] == 0) {
+            printf("\nProcesses are in deadlock\n");
+            printf("System is in an unsafe state\n");
+            return;
+        }
+    }
+
+    for (i = 0; i < cl; i++) {
+        printf("P%d ", safe[i] + 1);
+        if (i != cl - 1)
+            printf("-> ");
+    }
+    printf("\nThe system is in a safe state\n");
+}
+
+gcc -o bankers bankers.c
+./bankers
+Number of processes: 5
+Number of resources: 3
+Max matrix:
+7 5 3
+3 2 2
+9 0 2
+2 2 2
+4 3 3
+Allocation matrix:
+0 1 0
+2 0 0
+3 0 2
+2 1 1
+0 0 2
+Available resources:
+3 3 2
+
+P6-Page Replacement Algorithms
+Optimal Page Replacement
+
+#include <stdio.h>
+
+void printFrames(int frames[], int frameSize) {
+    for (int i = 0; i < frameSize; i++) {
+        if (frames[i] == -1)
+            printf("- ");
+        else
+            printf("%d ", frames[i]);
+    }
+    printf("\n");
+}
+
+int findOptimal(int frames[], int frameSize, int refString[], int refSize, int currentIndex) {
+    int farthest = currentIndex;
+    int index = -1;
+    
+    // Find the page that will be used farthest in the future
+    for (int i = 0; i < frameSize; i++) {
+        int j;
+        for (j = currentIndex; j < refSize; j++) {
+            if (frames[i] == refString[j]) {
+                if (j > farthest) {
+                    farthest = j;
+                    index = i;
+                }
+                break;
+            }
+        }
+        // If not found in future, return this index immediately
+        if (j == refSize && index == -1) {
+            return i;
+        }
+    }
+    
+    // If all pages are found in future, return the one farthest away
+    return (index == -1 ? 0 : index);
+}
+
+void optimal(int refString[], int refSize, int frameSize) {
+    int frames[frameSize];
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+    }
+
+    int pageFaults = 0;
+    printf("\nOptimal Page Replacement:\n");
+    printf("Reference String: ");
+    for (int i = 0; i < refSize; i++) {
+        printf("%d ", refString[i]);
+    }
+    printf("\n\nFrames after each reference:\n");
+
+    for (int i = 0; i < refSize; i++) {
+        int found = 0;
+        
+        // Check if page is already in a frame
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == refString[i]) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if (!found) {
+            // Page not found, need to replace
+            int replaceIndex;
+            
+            // If frame is not full, fill empty frame first
+            if (i < frameSize) {
+                for (int j = 0; j < frameSize; j++) {
+                    if (frames[j] == -1) {
+                        replaceIndex = j;
+                        break;
+                    }
+                }
+            } else {
+                // Frames are full, find optimal page to replace
+                replaceIndex = findOptimal(frames, frameSize, refString, refSize, i + 1);
+            }
+            
+            frames[replaceIndex] = refString[i];
+            pageFaults++;
+        }
+        
+        printf("Reference %d: ", refString[i]);
+        printFrames(frames, frameSize);
+    }
+
+    printf("\nTotal Page Faults: %d\n", pageFaults);
+}
+
+int main() {
+    int refSize, frameSize;
+
+    printf("Enter the number of pages in the reference string: ");
+    scanf("%d", &refSize);
+
+    int refString[refSize];
+    printf("Enter the reference string (space-separated):\n");
+    for (int i = 0; i < refSize; i++) {
+        scanf("%d", &refString[i]);
+    }
+
+    printf("Enter the number of frames (minimum 3): ");
+    scanf("%d", &frameSize);
+    
+    if (frameSize < 3 || frameSize > refSize) {
+        printf("Frame size should be between 3 and %d.\n", refSize);
+        return 1;
+    }
+
+    optimal(refString, refSize, frameSize);
+
+    return 0;
+}
+
+gcc -o optimal_page optimal_page.c
+./optimal_page
+Enter the number of pages in the reference string: 9
+Enter the reference string (space-separated):1 2 3 4 1 2 5 1 2
+Enter the number of frames (minimum 3): 3
+Reference String: 1 2 3 4 1 2 5 1 2 
+
+
+Least Recently Used
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void printFrames(int frames[], int frameSize) {
+    for (int i = 0; i < frameSize; i++) {
+        if (frames[i] == -1)
+            printf("- ");
+        else
+            printf("%d ", frames[i]);
+    }
+    printf("\n");
+}
+
+void lru(int refString[], int refSize, int frameSize) {
+    int *frames = (int *)malloc(frameSize * sizeof(int));
+    int *time = (int *)malloc(frameSize * sizeof(int));
+    
+    if (frames == NULL || time == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+    
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+        time[i] = -1;  // Initialize to -1 to indicate never used
+    }
+    
+    int pageFaults = 0;
+    int pageHits = 0;
+    
+    printf("\nLRU Page Replacement:\n");
+    printf("Reference String: ");
+    for (int i = 0; i < refSize; i++) {
+        printf("%d ", refString[i]);
+    }
+    printf("\n\nFrames after each reference:\n");
+    
+    for (int i = 0; i < refSize; i++) {
+        int found = 0;
+        
+        // Check if page is already in a frame
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == refString[i]) {
+                found = 1;
+                time[j] = i;  // Update timestamp for recent use
+                pageHits++;
+                break;
+            }
+        }
+        
+        if (!found) {
+            // Page not found, replace LRU page
+            int lruIndex = 0;
+            for (int j = 1; j < frameSize; j++) {
+                if (time[j] < time[lruIndex])
+                    lruIndex = j;
+            }
+            
+            frames[lruIndex] = refString[i];
+            time[lruIndex] = i;
+            pageFaults++;
+        }
+        
+        printf("Reference %d: ", refString[i]);
+        printFrames(frames, frameSize);
+    }
+    
+    printf("\nTotal Page Faults: %d\n", pageFaults);
+    printf("Total Page Hits: %d\n", pageHits);
+    printf("Hit Ratio: %.2f%%\n", (float)pageHits / refSize * 100);
+    
+    free(frames);
+    free(time);
+}
+
+int main() {
+    int refSize, frameSize;
+    
+    printf("Enter the number of pages in the reference string: ");
+    scanf("%d", &refSize);
+    
+    if (refSize <= 0) {
+        printf("Reference string size must be positive.\n");
+        return 1;
+    }
+    
+    int *refString = (int *)malloc(refSize * sizeof(int));
+    if (refString == NULL) {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+    
+    printf("Enter the reference string (space-separated):\n");
+    for (int i = 0; i < refSize; i++) {
+        scanf("%d", &refString[i]);
+    }
+    
+    printf("Enter the number of frames (minimum 3): ");
+    scanf("%d", &frameSize);
+    
+    if (frameSize < 3) {
+        printf("Frame size should be at least 3.\n");
+        free(refString);
+        return 1;
+    }
+    
+    if (frameSize > refSize) {
+        printf("Warning: Frame size is larger than reference string size.\n");
+    }
+    
+    lru(refString, refSize, frameSize);
+    
+    free(refString);
+    return 0;
+}
+
+gcc -o lru_page lru_page.c
+./lru_page
+Enter the number of pages in the reference string: 12
+Enter the reference string (space-separated):7 0 1 2 0 3 0 4 2 3 0 3
+Enter the number of frames (minimum 3): 3
+Reference String: 7 0 1 2 0 3 0 4 2 3 0 3
+
+
+First-Come-First-Served
+#include <stdio.h>
+#include <stdlib.h>
+
+void printFrames(int frames[], int frameSize) {
+    for (int i = 0; i < frameSize; i++) {
+        if (frames[i] == -1)
+            printf("- ");
+        else
+            printf("%d ", frames[i]);
+    }
+    printf("\n");
+}
+
+void fcfs(int refString[], int refSize, int frameSize) {
+    int *frames = (int *)malloc(frameSize * sizeof(int));
+    
+    if (frames == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+    
+    for (int i = 0; i < frameSize; i++) {
+        frames[i] = -1;
+    }
+    
+    int pageFaults = 0, pageHits = 0;
+    int nextReplace = 0;
+    
+    printf("\nFCFS Page Replacement:\n");
+    printf("Reference String: ");
+    for (int i = 0; i < refSize; i++) {
+        printf("%d ", refString[i]);
+    }
+    printf("\n\nFrames after each reference:\n");
+    
+    for (int i = 0; i < refSize; i++) {
+        int found = 0;
+        
+        // Check if page is already in a frame
+        for (int j = 0; j < frameSize; j++) {
+            if (frames[j] == refString[i]) {
+                found = 1;
+                pageHits++;
+                break;
+            }
+        }
+        
+        if (!found) {
+            // Page not found, replace using FCFS
+            frames[nextReplace] = refString[i];
+            nextReplace = (nextReplace + 1) % frameSize;
+            pageFaults++;
+        }
+        
+        printf("Reference %d: ", refString[i]);
+        printFrames(frames, frameSize);
+    }
+    
+    printf("\nTotal Page Faults: %d\n", pageFaults);
+    printf("Total Page Hits: %d\n", pageHits);
+    printf("Hit Ratio: %.2f%%\n", (float)pageHits / refSize * 100);
+    
+    free(frames);
+}
+
+int main() {
+    int refSize, frameSize;
+    
+    printf("Enter the number of pages in the reference string: ");
+    scanf("%d", &refSize);
+    
+    if (refSize <= 0) {
+        printf("Reference string size must be positive.\n");
+        return 1;
+    }
+    
+    int *refString = (int *)malloc(refSize * sizeof(int));
+    
+    if (refString == NULL) {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+    
+    printf("Enter the reference string (space-separated):\n");
+    for (int i = 0; i < refSize; i++) {
+        scanf("%d", &refString[i]);
+    }
+    
+    printf("Enter the number of frames (minimum 3): ");
+    scanf("%d", &frameSize);
+    
+    if (frameSize < 3) {
+        printf("Frame size should be at least 3.\n");
+        free(refString);
+        return 1;
+    }
+    
+    if (frameSize > refSize) {
+        printf("Warning: Frame size is larger than reference string size.\n");
+    }
+    
+    fcfs(refString, refSize, frameSize);
+    
+    free(refString);
+    return 0;
+}
+
+gcc -o fcfs_page fcfs_page.c
+./fcfs_page
+Enter the number of pages in the reference string: 12
+Enter the reference string (space-separated):7 0 1 2 0 3 0 4 2 3 0 3
+Enter the number of frames (minimum 3): 3
+Reference String: 7 0 1 2 0 3 0 4 2 3 0 3
+
+p7-Inter process communication
+
+client-server
+
+client.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <string.h>
+#include <unistd.h>
+
+#define SHM_KEY 12345
+#define SHM_SIZE 1024
+
+int main() {
+    int shmid;
+    char *shmaddr;
+
+    printf("CLIENT: Attempting to access shared memory...\n");
+    sleep(1);  // Give server time to create shared memory
+
+    shmid = shmget(SHM_KEY, SHM_SIZE, 0666);
+    if (shmid < 0) {
+        perror("shmget");
+        exit(1);
+    }
+    printf("CLIENT: Shared memory found with ID: %d\n", shmid);
+
+    printf("CLIENT: Attaching to shared memory...\n");
+    shmaddr = shmat(shmid, NULL, 0);
+    if (shmaddr == (char *) -1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    printf("CLIENT: Reading from shared memory...\n");
+    printf("CLIENT: Message from shared memory: %s\n", shmaddr);
+
+    printf("CLIENT: Detaching from shared memory...\n");
+    if (shmdt(shmaddr) == -1) {
+        perror("shmdt");
+        exit(1);
+    }
+
+    printf("CLIENT: Successfully detached from shared memory.\n");
+
+    return 0;
+}
+
+
+server.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <string.h>
+#include <unistd.h>
+
+#define SHM_KEY 12345
+#define SHM_SIZE 1024
+
+int main() {
+    int shmid;
+    char *shmaddr;
+
+    printf("SERVER: Creating shared memory segment...\n");
+    shmid = shmget(SHM_KEY, SHM_SIZE, IPC_CREAT | 0666);
+    if (shmid < 0) {
+        perror("shmget");
+        exit(1);
+    }
+    printf("SERVER: Shared memory created with ID: %d\n", shmid);
+
+    printf("SERVER: Attaching to shared memory...\n");
+    shmaddr = shmat(shmid, NULL, 0);
+    if (shmaddr == (char *) -1) {
+        perror("shmat");
+        exit(1);
+    }
+
+    printf("SERVER: Writing to shared memory...\n");
+    char *message = "Hello from DVVPCOE, Ahmednagar Server!";
+    strncpy(shmaddr, message, SHM_SIZE - 1);
+    shmaddr[SHM_SIZE - 1] = '\0';  // Ensure null termination
+
+    printf("SERVER: Message written to shared memory: %s\n", message);
+    printf("SERVER: Waiting for client to read...\n");
+    sleep(5);  // Give client time to read
+
+    printf("SERVER: Detaching from shared memory...\n");
+    if (shmdt(shmaddr) == -1) {
+        perror("shmdt");
+        exit(1);
+    }
+
+    printf("SERVER: Removing shared memory segment...\n");
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(1);
+    }
+    printf("SERVER: Shared memory removed successfully.\n");
+
+    return 0;
+}
+
+gcc -o server server.c
+gcc -o client client.c
+
+Run in two separate terminals:
+./server
+
+./client
+
+P8- Disk Scheduling Algorithms
+
+scan_scheduling.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Comparison function for qsort
+int compare(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+
+int main() {
+    int n, i, head, total_movement = 0, direction;
+    
+    printf("========== SCAN DISK SCHEDULING ==========\n\n");
+    
+    printf("Enter the number of requests: ");
+    scanf("%d", &n);
+    
+    if (n <= 0) {
+        printf("Number of requests must be positive.\n");
+        return 1;
+    }
+
+    int *requests = (int *)malloc(n * sizeof(int));
+    if (requests == NULL) {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+
+    printf("Enter the request sequence (space-separated): ");
+    for (i = 0; i < n; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    printf("Enter the initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter the disk size (last cylinder number): ");
+    int disk_size;
+    scanf("%d", &disk_size);
+
+    if (head < 0 || head >= disk_size) {
+        printf("Invalid head position! Must be between 0 and %d.\n", disk_size - 1);
+        free(requests);
+        return 1;
+    }
+
+    printf("Enter the direction (1 for HIGH, 0 for LOW): ");
+    scanf("%d", &direction);
+
+    if (direction != 0 && direction != 1) {
+        printf("Invalid direction! Use 1 for HIGH or 0 for LOW.\n");
+        free(requests);
+        return 1;
+    }
+
+    // Sort the request array using qsort
+    qsort(requests, n, sizeof(int), compare);
+
+    printf("\n========== EXECUTION ==========\n");
+    printf("Initial head position: %d\n");
+    printf("Disk size: %d (0 to %d)\n", disk_size, disk_size - 1);
+    printf("Direction: %s\n", (direction == 1) ? "HIGH" : "LOW");
+    printf("Sorted request sequence: ");
+    for (i = 0; i < n; i++) {
+        printf("%d ", requests[i]);
+    }
+    printf("\n\n");
+
+    // SCAN algorithm
+    printf("Service sequence:\n");
+    
+    if (direction == 1) { // Move towards higher end first
+        // Find the first request >= head
+        int start_idx = 0;
+        for (i = 0; i < n && requests[i] < head; i++) {
+            start_idx = i + 1;
+        }
+        
+        // Service requests from head to disk end
+        for (i = start_idx; i < n; i++) {
+            printf("  Serviced request: %d (movement: %d)\n", requests[i], abs(head - requests[i]));
+            total_movement += abs(head - requests[i]);
+            head = requests[i];
+        }
+        
+        // Move to disk end if not already there
+        if (head < disk_size - 1) {
+            printf("  Move to disk end: %d (movement: %d)\n", disk_size - 1, abs(head - (disk_size - 1)));
+            total_movement += abs(head - (disk_size - 1));
+            head = disk_size - 1;
+        }
+        
+        // Service remaining requests in reverse order
+        for (i = start_idx - 1; i >= 0; i--) {
+            printf("  Serviced request: %d (movement: %d)\n", requests[i], abs(head - requests[i]));
+            total_movement += abs(head - requests[i]);
+            head = requests[i];
+        }
+        
+    } else { // Move towards lower end first
+        // Find the last request <= head
+        int end_idx = n - 1;
+        for (i = n - 1; i >= 0 && requests[i] > head; i--) {
+            end_idx = i - 1;
+        }
+        
+        // Service requests from head to disk start
+        for (i = end_idx; i >= 0; i--) {
+            printf("  Serviced request: %d (movement: %d)\n", requests[i], abs(head - requests[i]));
+            total_movement += abs(head - requests[i]);
+            head = requests[i];
+        }
+        
+        // Move to disk start if not already there
+        if (head > 0) {
+            printf("  Move to disk start: 0 (movement: %d)\n", head);
+            total_movement += head;
+            head = 0;
+        }
+        
+        // Service remaining requests in reverse order
+        for (i = end_idx + 1; i < n; i++) {
+            printf("  Serviced request: %d (movement: %d)\n", requests[i], abs(head - requests[i]));
+            total_movement += abs(head - requests[i]);
+            head = requests[i];
+        }
+    }
+
+    printf("\n========== RESULTS ==========\n");
+    printf("Total head movement: %d cylinders\n", total_movement);
+    
+    free(requests);
+    return 0;
+}
+
+gcc -o scan_scheduling scan_scheduling.c
+./scan_scheduling
+Enter the number of requests: 8
+Enter the request sequence (space-separated): 82 170 43 140 24 16 190 9
+Enter the initial head position: 50
+Enter the disk size (last cylinder number): 200
+Enter the direction (1 for HIGH, 0 for LOW): 1
+
+Shortest Seek Time First
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+int main() {
+    int n, i, j, head, total_movement = 0;
+
+    printf("========== SSTF DISK SCHEDULING ==========\n\n");
+
+    printf("Enter the number of requests: ");
+    scanf("%d", &n);
+
+    if (n <= 0) {
+        printf("Number of requests must be positive.\n");
+        return 1;
+    }
+
+    int *requests = (int *)malloc(n * sizeof(int));
+    int *completed = (int *)malloc(n * sizeof(int));
+
+    if (requests == NULL || completed == NULL) {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+
+    printf("Enter the request sequence (space-separated): ");
+    for (i = 0; i < n; i++) {
+        scanf("%d", &requests[i]);
+        completed[i] = 0;  // Mark all requests as uncompleted initially
+    }
+
+    printf("Enter the initial head position: ");
+    scanf("%d", &head);
+
+    printf("\n========== EXECUTION ==========\n");
+    printf("Initial head position: %d\n");
+    printf("Request sequence: ");
+    for (i = 0; i < n; i++) {
+        printf("%d ", requests[i]);
+    }
+    printf("\n\nService sequence:\n");
+
+    // SSTF Algorithm
+    for (i = 0; i < n; i++) {
+        int min = INT_MAX;
+        int min_index = -1;
+
+        // Find the request with minimum seek time
+        for (j = 0; j < n; j++) {
+            if (!completed[j] && abs(head - requests[j]) < min) {
+                min = abs(head - requests[j]);
+                min_index = j;
+            }
+        }
+
+        if (min_index == -1) {
+            printf("Error: No uncompleted request found!\n");
+            break;
+        }
+
+        // Mark the request as completed
+        completed[min_index] = 1;
+
+        // Calculate and add movement
+        int movement = abs(head - requests[min_index]);
+        total_movement += movement;
+
+        // Update head position
+        head = requests[min_index];
+
+        printf("  Step %d: Serviced request %d (seek time: %d, Total movement: %d)\n",
+               i + 1, requests[min_index], movement, total_movement);
+    }
+
+    printf("\n========== RESULTS ==========\n");
+    printf("Total head movement: %d cylinders\n", total_movement);
+
+    free(requests);
+    free(completed);
+
+    return 0;
+}
+
+gcc -o sstf_scheduling sstf_scheduling.c
+./sstf_scheduling
+Enter the number of requests: 8
+Enter the request sequence (space-separated): 82 170 43 140 24 16 190 9
+Enter the initial head position: 50
+
+FIFO (Named Pipe)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+#define FIFO1 "myfifo1"
+#define FIFO2 "myfifo2"
+#define MAX_BUF 1024
+
+int main() {
+    int fd1, fd2;
+    char sentence[MAX_BUF];
+    char result[MAX_BUF];
+
+    printf("========== PROCESS 1: WRITER/READER ==========\n\n");
+
+    // Remove FIFOs if they exist (cleanup from previous runs)
+    unlink(FIFO1);
+    unlink(FIFO2);
+
+    // Create named pipes (FIFOs)
+    printf("Process 1: Creating FIFOs...\n");
+    if (mkfifo(FIFO1, 0666) == -1) {
+        perror("mkfifo FIFO1");
+        exit(1);
+    }
+    if (mkfifo(FIFO2, 0666) == -1) {
+        perror("mkfifo FIFO2");
+        exit(1);
+    }
+    printf("Process 1: FIFOs created successfully.\n\n");
+
+    // Open FIFO1 for writing (will block until reader opens it)
+    printf("Process 1: Waiting for Process 2 to connect...\n");
+    fd1 = open(FIFO1, O_WRONLY);
+    if (fd1 == -1) {
+        perror("open FIFO1");
+        exit(1);
+    }
+    printf("Process 1: Connected to FIFO1 (write mode)\n");
+
+    // Open FIFO2 for reading (will block until writer opens it)
+    fd2 = open(FIFO2, O_RDONLY);
+    if (fd2 == -1) {
+        perror("open FIFO2");
+        exit(1);
+    }
+    printf("Process 1: Connected to FIFO2 (read mode)\n\n");
+
+    // Main communication loop
+    while (1) {
+        printf("========== SEND DATA ==========\n");
+        printf("Enter sentences (or 'exit' to quit):\n");
+        printf(">> ");
+        fgets(sentence, sizeof(sentence), stdin);
+
+        // Remove trailing newline
+        sentence[strcspn(sentence, "\n")] = '\0';
+
+        // Check for exit command
+        if (strcmp(sentence, "exit") == 0) {
+            printf("\nProcess 1: Sending exit signal...\n");
+            write(fd1, "exit", 4);
+            break;
+        }
+
+        // Check if sentence is empty
+        if (strlen(sentence) == 0) {
+            printf("Please enter a valid sentence.\n");
+            continue;
+        }
+
+        // Write sentence to FIFO1
+        printf("Process 1: Sending sentence to Process 2...\n");
+        if (write(fd1, sentence, strlen(sentence)) == -1) {
+            perror("write");
+            exit(1);
+        }
+
+        // Read results from FIFO2
+        printf("\nProcess 1: Waiting for analysis results...\n");
+        memset(result, 0, sizeof(result));
+        
+        ssize_t bytes_read = read(fd2, result, sizeof(result) - 1);
+        if (bytes_read == -1) {
+            perror("read");
+            exit(1);
+        }
+        
+        result[bytes_read] = '\0';
+
+        printf("\n========== RECEIVED RESULTS ==========\n");
+        printf("%s\n", result);
+        printf("====================================\n\n");
+    }
+
+    // Cleanup
+    printf("\nProcess 1: Closing FIFOs and exiting...\n");
+    close(fd1);
+    close(fd2);
+    unlink(FIFO1);
+    unlink(FIFO2);
+
+    return 0;
+}
+
+Process 1 (Writer/Reader) - writer.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+#define FIFO1 "myfifo1"
+#define FIFO2 "myfifo2"
+#define MAX_BUF 1024
+
+int main() {
+    int fd1, fd2;
+    char sentence[MAX_BUF];
+    char result[MAX_BUF];
+
+    printf("========== PROCESS 1: WRITER/READER ==========\n\n");
+
+    // Remove FIFOs if they exist (cleanup from previous runs)
+    unlink(FIFO1);
+    unlink(FIFO2);
+
+    // Create named pipes (FIFOs)
+    printf("Process 1: Creating FIFOs...\n");
+    if (mkfifo(FIFO1, 0666) == -1) {
+        perror("mkfifo FIFO1");
+        exit(1);
+    }
+    if (mkfifo(FIFO2, 0666) == -1) {
+        perror("mkfifo FIFO2");
+        exit(1);
+    }
+    printf("Process 1: FIFOs created successfully.\n\n");
+
+    // Open FIFO1 for writing (will block until reader opens it)
+    printf("Process 1: Waiting for Process 2 to connect...\n");
+    fd1 = open(FIFO1, O_WRONLY);
+    if (fd1 == -1) {
+        perror("open FIFO1");
+        exit(1);
+    }
+    printf("Process 1: Connected to FIFO1 (write mode)\n");
+
+    // Open FIFO2 for reading (will block until writer opens it)
+    fd2 = open(FIFO2, O_RDONLY);
+    if (fd2 == -1) {
+        perror("open FIFO2");
+        exit(1);
+    }
+    printf("Process 1: Connected to FIFO2 (read mode)\n\n");
+
+    // Main communication loop
+    while (1) {
+        printf("========== SEND DATA ==========\n");
+        printf("Enter sentences (or 'exit' to quit):\n");
+        printf(">> ");
+        fgets(sentence, sizeof(sentence), stdin);
+
+        // Remove trailing newline
+        sentence[strcspn(sentence, "\n")] = '\0';
+
+        // Check for exit command
+        if (strcmp(sentence, "exit") == 0) {
+            printf("\nProcess 1: Sending exit signal...\n");
+            write(fd1, "exit", 4);
+            break;
+        }
+
+        // Check if sentence is empty
+        if (strlen(sentence) == 0) {
+            printf("Please enter a valid sentence.\n");
+            continue;
+        }
+
+        // Write sentence to FIFO1
+        printf("Process 1: Sending sentence to Process 2...\n");
+        if (write(fd1, sentence, strlen(sentence)) == -1) {
+            perror("write");
+            exit(1);
+        }
+
+        // Read results from FIFO2
+        printf("\nProcess 1: Waiting for analysis results...\n");
+        memset(result, 0, sizeof(result));
+        
+        ssize_t bytes_read = read(fd2, result, sizeof(result) - 1);
+        if (bytes_read == -1) {
+            perror("read");
+            exit(1);
+        }
+        
+        result[bytes_read] = '\0';
+
+        printf("\n========== RECEIVED RESULTS ==========\n");
+        printf("%s\n", result);
+        printf("====================================\n\n");
+    }
+
+    // Cleanup
+    printf("\nProcess 1: Closing FIFOs and exiting...\n");
+    close(fd1);
+    close(fd2);
+    unlink(FIFO1);
+    unlink(FIFO2);
+
+    return 0;
+}
+
+
+Process 2 (Reader/Writer) - reader.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <ctype.h>
+
+#define FIFO1 "myfifo1"
+#define FIFO2 "myfifo2"
+#define OUTPUT_FILE "analysis_results.txt"
+#define MAX_BUF 1024
+
+typedef struct {
+    int characters;
+    int words;
+    int lines;
+} Analysis;
+
+// Function to analyze text
+Analysis analyzeText(const char *text) {
+    Analysis result = {0, 0, 0};
+    int in_word = 0;
+
+    for (int i = 0; text[i] != '\0'; i++) {
+        result.characters++;
+
+        // Count words
+        if (isspace(text[i])) {
+            if (in_word) {
+                result.words++;
+                in_word = 0;
+            }
+        } else {
+            in_word = 1;
+        }
+
+        // Count lines (assuming each sentence is one line)
+        if (text[i] == '.') {
+            result.lines++;
+        }
+    }
+
+    // If text ends with a word (not space), count it
+    if (in_word) {
+        result.words++;
+    }
+
+    // If no explicit line ending, count as 1 line
+    if (result.lines == 0 && result.characters > 0) {
+        result.lines = 1;
+    }
+
+    return result;
+}
+
+int main() {
+    int fd1, fd2;
+    char sentence[MAX_BUF];
+    char result[MAX_BUF];
+    Analysis analysis;
+    FILE *fp;
+
+    printf("========== PROCESS 2: READER/WRITER ==========\n\n");
+
+    // Open FIFO1 for reading (will block until writer opens it)
+    printf("Process 2: Waiting for Process 1 to connect...\n");
+    fd1 = open(FIFO1, O_RDONLY);
+    if (fd1 == -1) {
+        perror("open FIFO1");
+        exit(1);
+    }
+    printf("Process 2: Connected to FIFO1 (read mode)\n");
+
+    // Open FIFO2 for writing
+    fd2 = open(FIFO2, O_WRONLY);
+    if (fd2 == -1) {
+        perror("open FIFO2");
+        exit(1);
+    }
+    printf("Process 2: Connected to FIFO2 (write mode)\n\n");
+
+    // Main communication loop
+    while (1) {
+        // Read sentence from FIFO1
+        printf("========== WAITING FOR DATA ==========\n");
+        printf("Process 2: Waiting for sentence from Process 1...\n");
+        
+        memset(sentence, 0, sizeof(sentence));
+        ssize_t bytes_read = read(fd1, sentence, sizeof(sentence) - 1);
+        
+        if (bytes_read == -1) {
+            perror("read");
+            exit(1);
+        }
+
+        sentence[bytes_read] = '\0';
+
+        // Check for exit signal
+        if (strcmp(sentence, "exit") == 0) {
+            printf("Process 2: Received exit signal. Closing.\n");
+            break;
+        }
+
+        printf("Process 2: Received sentence: %s\n\n", sentence);
+
+        // Analyze text
+        printf("========== ANALYZING TEXT ==========\n");
+        analysis = analyzeText(sentence);
+        
+        printf("Process 2: Analysis Results:\n");
+        printf("  - Characters: %d\n", analysis.characters);
+        printf("  - Words: %d\n", analysis.words);
+        printf("  - Lines: %d\n\n", analysis.lines);
+
+        // Write results to file
+        printf("Process 2: Writing to file '%s'...\n", OUTPUT_FILE);
+        fp = fopen(OUTPUT_FILE, "a");
+        if (fp == NULL) {
+            perror("fopen");
+            exit(1);
+        }
+
+        fprintf(fp, "\n========== ANALYSIS RESULT ==========\n");
+        fprintf(fp, "Input Sentence: %s\n", sentence);
+        fprintf(fp, "Number of Characters: %d\n", analysis.characters);
+        fprintf(fp, "Number of Words: %d\n", analysis.words);
+        fprintf(fp, "Number of Lines: %d\n", analysis.lines);
+        fprintf(fp, "=====================================\n");
+
+        fclose(fp);
+        printf("Process 2: Written to file successfully.\n\n");
+
+        // Prepare response for FIFO2
+        snprintf(result, sizeof(result),
+                 "Analysis Results:\n"
+                 "  Characters: %d\n"
+                 "  Words: %d\n"
+                 "  Lines: %d\n"
+                 "(Details saved to %s)",
+                 analysis.characters, analysis.words, analysis.lines, OUTPUT_FILE);
+
+        // Write results to FIFO2
+        printf("Process 2: Sending results to Process 1...\n");
+        if (write(fd2, result, strlen(result)) == -1) {
+            perror("write");
+            exit(1);
+        }
+        printf("Process 2: Results sent successfully.\n\n");
+    }
+
+    // Cleanup
+    printf("\nProcess 2: Closing FIFOs and exiting...\n");
+    close(fd1);
+    close(fd2);
+
+    return 0;
+}
+
+gcc -o writer writer.c
+gcc -o reader reader.c
+
+./writer
+
+./reader
+
+
